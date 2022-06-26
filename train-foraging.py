@@ -22,13 +22,39 @@ parser.add_argument('--env_name', type=str, default="Foraging-grid-6x6-2p-3f-v2"
                     help='the step size of the program generation loop')
 parser.add_argument('--policy_name', type=str, required=True,
                     help='the policy file name')
-parser.add_argument('--test_prior_weighting', action='store_true', type=bool,
+parser.add_argument('--test_prior_weighting', action='store_true',
                     help='test the weight for the prior decreasing from 1.0 to 0.0')
+
+parser.add_argument('--test_same_program', action='store_true',
+                    help='test the envs with the same LPP policy')
 
 args = parser.parse_args()
 print('Train policy with args:', ' '.join(f'{k}={v}' for k, v in vars(args).items()))
 
+ppl_file = f'policies/{args.policy_name}_ppl.pkl'
+if args.test_same_program is True:
+    print('test same program')
+    results = {}
+    print(f'load policies from {ppl_file}')
+    with open(ppl_file, 'rb') as f:
+        pickle_policies = pickle.load(f)
+    envs = ['Foraging-grid-5x5-2p-2f-v2', 'Foraging-grid-8x8-2p-4f-v2', 'Foraging-grid-10x10-2p-4f-v2', 'Foraging-grid-12x12-2p-4f-v2', 'Foraging-grid-14x14-2p-5f-v2', 'Foraging-grid-16x16-2p-6f-v2', 'Foraging-grid-18x18-2p-8f-v2',
+            'Foraging-grid-5x5-3p-2f-v2',  # 'Foraging-grid-8x8-3p-4f-v2', 'Foraging-grid-10x10-3p-4f-v2', 'Foraging-grid-12x12-3p-4f-v2', 'Foraging-grid-14x14-3p-5f-v2', 'Foraging-grid-16x16-3p-6f-v2', 'Foraging-grid-18x18-3p-8f-v2',
+            'Foraging-grid-5x5-4p-2f-v2',  # 'Foraging-grid-8x8-4p-4f-v2', 'Foraging-grid-10x10-4p-4f-v2', 'Foraging-grid-12x12-4p-4f-v2', 'Foraging-grid-14x14-4p-5f-v2', 'Foraging-grid-16x16-4p-6f-v2', 'Foraging-grid-18x18-4p-8f-v2',
+            'Foraging-grid-5x5-5p-2f-v2',  # 'Foraging-grid-8x8-5p-4f-v2', 'Foraging-grid-10x10-5p-4f-v2', 'Foraging-grid-12x12-5p-4f-v2', 'Foraging-grid-14x14-5p-5f-v2', 'Foraging-grid-16x16-5p-6f-v2', 'Foraging-grid-18x18-5p-8f-v2',
+            'Foraging-grid-5x5-6p-2f-v2']  # 'Foraging-grid-8x8-6p-4f-v2', 'Foraging-grid-10x10-6p-4f-v2', 'Foraging-grid-12x12-6p-4f-v2', 'Foraging-grid-14x14-6p-5f-v2', 'Foraging-grid-16x16-6p-6f-v2', 'Foraging-grid-18x18-6p-8f-v2']
+    policies = [pickle_policies[0]] * len(pickle_policies)
+    for i, e in enumerate(envs):
+        rewards = []
+        for d in range(100):
+            rewards.append(run_foraging_policy(e, policies, render=False, max_demo_length=20*(i+1)))
+        avg_reward = np.array(rewards).mean()
+        print(f'env: {e}, avg. reward after run {d+1}: ' + str(avg_reward))
+        results[e] = avg_reward
+    exit()
+
 if args.test_prior_weighting is True:
+    print('test prior weighting')
     results = {}
     prior_weights = [p / 10 for p in range(11)]
     for prior_weight in prior_weights:
@@ -53,7 +79,6 @@ else:
     policies = pipeline.train(args.env_name, range(args.n_demos), args.gen_prog_step_size,
                               args.num_programs, args.num_dt, args.max_num_particles, 0.1)
 
-    ppl_file = f'policies/{args.policy_name}_ppl.pkl'
     print(f'saved policies to {ppl_file}')
     with open(ppl_file, 'wb') as f:
         pickle.dump(policies, f)

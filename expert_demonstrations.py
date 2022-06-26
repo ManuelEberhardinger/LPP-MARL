@@ -63,7 +63,7 @@ def get_demo_from_csv(csv, env_num):
     df = pd.read_csv(csv, index_col=0)
     agent = df.loc[(df['agent_id'] == 0) & (df['run_id'] == env_num + 1)]
     for _, row in agent.iterrows():
-        layout = get_accessible_obs_from_csv(row.obs)
+        layout = get_accessible_obs_from_csv(row.obs, field_size=11)
         demonstrations.append((layout, row.action, eval(row.player_pos)))
     return demonstrations
 
