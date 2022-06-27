@@ -60,10 +60,17 @@ class PLPPolicy(object):
 
         self._action_prob_cache = {}
 
-    def __call__(self, obs, pos):
-        action_probs = self.get_action_probs(obs, pos).flatten()
+    def __call__(self, obs, pos, vis=False):
+        action_probs = self.get_action_probs(obs, pos, vis)
+        action_probs = action_probs.flatten()
         if self.map_choices:
             idx = np.argmax(action_probs).squeeze()
+            # if vis:
+            #print(f'chosen action:  {idx}')
+            #selected_action = action_single_probs[idx]
+            #selected_action.sort(key=lambda x: x[0])
+            #best_lpp = selected_action[-1]
+            # print(best_lpp)
         else:
             idx = self.rng.choice(len(action_probs), p=action_probs)
         return idx
@@ -71,16 +78,19 @@ class PLPPolicy(object):
     def hash_obs(self, full_obs):
         return tuple(tuple(tuple(l) for l in obs) for obs in full_obs)
 
-    def get_action_probs(self, obs, pos):
+    def get_action_probs(self, obs, pos, vis):
         hashed_obs = self.hash_obs(obs)
         if hashed_obs in self._action_prob_cache:
             return self._action_prob_cache[hashed_obs]
 
         action_probs = np.zeros(len(ForagingActions), dtype=np.float32)
-
+        action_single_probs = {}
         for plp, prob in zip(self.plps, self.probs):
             for action in self.get_plp_suggestions(plp, obs, pos):
+                if action not in action_single_probs:
+                    action_single_probs[action] = []
                 action_probs[action] += prob
+                action_single_probs[action].append((prob, plp))
 
         denom = np.sum(action_probs)
         if denom == 0.:

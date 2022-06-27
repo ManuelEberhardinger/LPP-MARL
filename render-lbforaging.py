@@ -24,7 +24,7 @@ def _game_loop(env, render, ppl, n_agents):
     while not done:
         actions = []
         for i in range(n_agents):
-            actions.append(ppl[i](get_accessible_obs(obs[0])[:2], info['player_pos'][i]))
+            actions.append(ppl[i](get_accessible_obs(obs[0])[:2], info['player_pos'][i], render))
 
         obs, nreward, ndone, info = env.step(actions)
 
@@ -43,7 +43,7 @@ def main(env_name, game_count=1, render=False):
     env = gym.make(env_name)
     obs = env.reset()
     n_agents = env.n_agents
-    ppl_file = f'Foraging-grid-5x5-2p-2f-v2_ppl.pkl'
+    ppl_file = f'policies/iql_oracle_5x5-2p-2f_ppl.pkl'
     print(f'load policies from {ppl_file}')
     with open(ppl_file, 'rb') as f:
         ppl = pickle.load(f)
