@@ -27,7 +27,7 @@ from lbforaging.foraging.environment import Action as lba
 cache_dir = 'cache'
 
 
-# @manage_cache(cache_dir, ['.pkl', '.pkl'])
+@manage_cache(cache_dir, ['.pkl', '.pkl'])
 def get_program_set(base_class_name, num_programs):
     """
     Enumerate all programs up to a certain iteration.
@@ -157,7 +157,7 @@ def apply_programs(programs, fn_input):
     return x
 
 
-# @manage_cache(cache_dir, ['.npz', '.pkl'])
+@manage_cache(cache_dir, ['.npz', '.pkl'])
 def run_all_programs_on_single_demonstration(base_class_name, num_programs, demo_number, program_interval=1000):
     """
     Run all programs up to some iteration on one demonstration.
