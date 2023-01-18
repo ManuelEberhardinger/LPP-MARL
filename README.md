@@ -1,19 +1,16 @@
-# Few-shot Bayesian Imitation Learning with Policies as Logic over Programs
+# Imitation Learning of Logical Program Policies for Multi-Agent Reinforcement Learning
 
-## System Requirements
-We use Python 3.5.6 on macOS High Sierra. Other setups may work but have not been tested.
+Published on German KI2022 Conference in the Workshop for Explainable and Interpretable AI: http://www.cslab.cc/xi-ml-2022/
 
-## Installation
-First install [generalization_grid_games](https://github.com/tomsilver/generalization_grid_games).
-
-Then
+Install python requirements from file:
 ```
-pip install scikit-learn==0.20.3
-pip install imageio-ffmpeg
+pip install -r requirements.txt 
 ```
 
-## Usage Example
+## Run Experiments with default arguments: 
 
 ```
-python pipeline.py
+python train-foraging.py
 ```
+
+
